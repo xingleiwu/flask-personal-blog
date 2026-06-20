@@ -5,7 +5,7 @@ import markdown
 from markupsafe import Markup
 
 from config import Config
-from models import db, Article, AdminUser
+from models import db, Article, AdminUser, SiteSetting
 from forms import LoginForm, ArticleForm
 
 app = Flask(__name__)
@@ -22,6 +22,15 @@ def load_user(username):
     if username == app.config['ADMIN_USERNAME']:
         return AdminUser(username)
     return None
+
+VALID_PAGE_SIZES = [5, 10, 20, 50]
+
+def get_per_page():
+    value = SiteSetting.get('per_page', '10')
+    per_page = int(value)
+    if per_page not in VALID_PAGE_SIZES:
+        per_page = 10
+    return per_page
 
 def init_db():
     with app.app_context():
@@ -44,11 +53,14 @@ def init_db():
             db.session.add_all(sample_articles)
             db.session.commit()
             print('示例文章已添加')
+        if not SiteSetting.get('per_page'):
+            SiteSetting.set('per_page', '10')
+            print('默认分页设置已初始化')
 
 @app.route('/')
 def index():
     page = request.args.get('page', 1, type=int)
-    per_page = 10
+    per_page = get_per_page()
     articles = Article.query.order_by(Article.created_at.desc()).paginate(
         page=page, per_page=per_page, error_out=False
     )
@@ -67,7 +79,7 @@ def article_detail(article_id):
 def search():
     keyword = request.args.get('q', '').strip()
     page = request.args.get('page', 1, type=int)
-    per_page = 10
+    per_page = get_per_page()
     
     if keyword:
         articles = Article.query.filter(
@@ -117,6 +129,24 @@ def admin():
         page=page, per_page=per_page, error_out=False
     )
     return render_template('admin.html', articles=articles)
+
+@app.route('/admin/settings', methods=['GET', 'POST'])
+@login_required
+def admin_settings():
+    if request.method == 'POST':
+        per_page = request.form.get('per_page', '10')
+        if int(per_page) in VALID_PAGE_SIZES:
+            SiteSetting.set('per_page', per_page)
+            flash(f'分页大小已更新为每页 {per_page} 条', 'success')
+        else:
+            flash('无效的分页大小', 'danger')
+        return redirect(url_for('admin_settings'))
+    current_per_page = get_per_page()
+    return render_template('admin.html', 
+        articles=None, 
+        current_per_page=current_per_page, 
+        page_sizes=VALID_PAGE_SIZES,
+        show_settings=True)
 
 @app.route('/admin/article/new', methods=['GET', 'POST'])
 @login_required
