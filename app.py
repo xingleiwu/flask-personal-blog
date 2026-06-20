@@ -5,13 +5,18 @@ import markdown
 from markupsafe import Markup
 
 from config import Config
-from models import db, Article, AdminUser, SiteSetting
+from models import db, Article, AdminUser, SiteSetting, utc_to_cst
 from forms import LoginForm, ArticleForm
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 db.init_app(app)
+
+@app.template_filter('cst_time')
+def cst_time_filter(utc_time, fmt='%Y-%m-%d %H:%M'):
+    cst_time = utc_to_cst(utc_time)
+    return cst_time.strftime(fmt) if cst_time else ''
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'

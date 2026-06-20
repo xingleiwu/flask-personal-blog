@@ -22,9 +22,9 @@
                         </a>
                     </h2>
                     <p class="card-text text-muted small">
-                        <i class="bi bi-calendar3 me-1"></i>{{ article.created_at.strftime('%Y-%m-%d %H:%M') }}
+                        <i class="bi bi-calendar3 me-1"></i>{{ article.created_at|cst_time }}
                         {% if article.updated_at != article.created_at %}
-                        <span class="ms-3"><i class="bi bi-pencil me-1"></i>更新于 {{ article.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        <span class="ms-3"><i class="bi bi-pencil me-1"></i>更新于 {{ article.updated_at|cst_time }}</span>
                         {% endif %}
                     </p>
                     <p class="card-text">{{ article.content[:200] }}{% if article.content|length > 200 %}...{% endif %}</p>

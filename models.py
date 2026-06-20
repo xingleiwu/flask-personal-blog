@@ -1,8 +1,18 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+import pytz
 
 db = SQLAlchemy()
+
+CST = pytz.timezone('Asia/Shanghai')
+
+def utc_to_cst(utc_time):
+    if utc_time is None:
+        return None
+    if utc_time.tzinfo is None:
+        utc_time = pytz.utc.localize(utc_time)
+    return utc_time.astimezone(CST)
 
 class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -10,6 +20,18 @@ class Article(db.Model):
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    @property
+    def created_at_cst(self):
+        return utc_to_cst(self.created_at)
+
+    @property
+    def updated_at_cst(self):
+        return utc_to_cst(self.updated_at)
+
+    def format_time(self, time_obj, fmt='%Y-%m-%d %H:%M'):
+        cst_time = utc_to_cst(time_obj)
+        return cst_time.strftime(fmt) if cst_time else ''
 
     def __repr__(self):
         return f'<Article {self.title}>'
