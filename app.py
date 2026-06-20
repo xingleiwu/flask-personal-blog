@@ -90,7 +90,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         if (form.username.data == app.config['ADMIN_USERNAME'] and
-            form.password.data == app.config['ADMIN_PASSWORD']):
+            check_password_hash(app.config['ADMIN_PASSWORD_HASH'], form.password.data)):
             user = AdminUser(form.username.data)
             login_user(user)
             flash('登录成功！', 'success')

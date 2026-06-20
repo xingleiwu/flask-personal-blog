@@ -9,4 +9,5 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME') or 'admin'
-    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'admin123'
+    ADMIN_PASSWORD_HASH = os.environ.get('ADMIN_PASSWORD_HASH') or \
+        'pbkdf2:sha256:600000$yhWhB0FIe4Mec6eS$c7644bd9cea9490d0c38aba6c94b78c10a0830af5937f9b38bc693bc52b70043'

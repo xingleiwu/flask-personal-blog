@@ -140,7 +140,13 @@ python app.py
 | `SECRET_KEY` | Flask 密钥 | `dev-secret-key-change-in-production` |
 | `DATABASE_URL` | 数据库连接地址 | `sqlite:///blog.db` |
 | `ADMIN_USERNAME` | 管理员用户名 | `admin` |
-| `ADMIN_PASSWORD` | 管理员密码 | `admin123` |
+| `ADMIN_PASSWORD_HASH` | 管理员密码哈希（PBKDF2-SHA256） | `admin123` 的哈希值 |
+
+> **生成密码哈希的方法：**
+> ```python
+> from werkzeug.security import generate_password_hash
+> print(generate_password_hash('your_password', method='pbkdf2:sha256'))
+> ```
 
 ## 生产环境部署
 
