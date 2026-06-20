@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - 我的博客{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+<style>
+    #preview {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        min-height: 400px;
+        background-color: #fafafa;
+    }
+    #preview h1, #preview h2, #preview h3 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    #preview pre {
+        margin: 1rem 0;
+        border-radius: 8px;
+    }
+    #preview code {
+        padding: 2px 6px;
+        border-radius: 4px;
+        background-color: #e9ecef;
+    }
+    #preview pre code {
+        padding: 0;
+        background-color: transparent;
+    }
+    #preview blockquote {
+        border-left: 4px solid #0d6efd;
+        padding-left: 1rem;
+        margin: 1rem 0;
+        color: #6c757d;
+    }
+    #preview table {
+        width: 100%;
+        margin: 1rem 0;
+        border-collapse: collapse;
+    }
+    #preview th, #preview td {
+        border: 1px solid #dee2e6;
+        padding: 0.75rem;
+    }
+    #preview th {
+        background-color: #e9ecef;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-pencil-square me-2"></i>{{ title }}</h1>
+    <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>返回列表
+    </a>
+</div>
+
+<div class="card shadow">
+    <div class="card-body">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-4">
+                {{ form.title.label(class="form-label fw-bold") }}
+                {% if form.title.errors %}
+                    {{ form.title(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.title.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.title(class="form-control form-control-lg", placeholder="请输入文章标题") }}
+                {% endif %}
+            </div>
+
+            <ul class="nav nav-tabs mb-3" id="editorTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit">
+                        <i class="bi bi-code-slash me-1"></i>编辑
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="preview-tab" data-bs-toggle="tab" data-bs-target="#preview">
+                        <i class="bi bi-eye me-1"></i>预览
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="editorTabsContent">
+                <div class="tab-pane fade show active" id="edit">
+                    <div class="mb-4">
+                        {% if form.content.errors %}
+                            {{ form.content(class="form-control is-invalid", rows=15, placeholder="请输入文章内容，支持 Markdown 语法...") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.content.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.content(class="form-control", rows=15, placeholder="请输入文章内容，支持 Markdown 语法...") }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="preview">
+                    <div id="preview" class="mb-4"></div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="button" class="btn btn-outline-secondary" onclick="window.history.back()">
+                    <i class="bi bi-x-circle me-1"></i>取消
+                </button>
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/css.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/html.min.js"></script>
+<script>
+    marked.setOptions({
+        highlight: function(code, lang) {
+            if (lang && hljs.getLanguage(lang)) {
+                try {
+                    return hljs.highlight(code, { language: lang }).value;
+                } catch (e) {}
+            }
+            return code;
+        },
+        breaks: true,
+        gfm: true
+    });
+
+    const contentTextarea = document.getElementById('content');
+    const previewDiv = document.getElementById('preview');
+    const previewTab = document.getElementById('preview-tab');
+
+    function updatePreview() {
+        previewDiv.innerHTML = marked.parse(contentTextarea.value);
+        previewDiv.querySelectorAll('pre code').forEach(function(el) {
+            hljs.highlightElement(el);
+        });
+    }
+
+    contentTextarea.addEventListener('input', updatePreview);
+    
+    previewTab.addEventListener('click', function() {
+        updatePreview();
+    });
+
+    updatePreview();
+</script>
+{% endblock %}

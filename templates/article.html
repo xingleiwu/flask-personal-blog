@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} - 我的博客{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+<style>
+    .article-content {
+        line-height: 1.8;
+        font-size: 1.1rem;
+    }
+    .article-content h1, .article-content h2, .article-content h3 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    .article-content pre {
+        margin: 1rem 0;
+        border-radius: 8px;
+    }
+    .article-content code {
+        padding: 2px 6px;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+    }
+    .article-content pre code {
+        padding: 0;
+        background-color: transparent;
+    }
+    .article-content blockquote {
+        border-left: 4px solid #0d6efd;
+        padding-left: 1rem;
+        margin: 1rem 0;
+        color: #6c757d;
+    }
+    .article-content table {
+        width: 100%;
+        margin: 1rem 0;
+        border-collapse: collapse;
+    }
+    .article-content th, .article-content td {
+        border: 1px solid #dee2e6;
+        padding: 0.75rem;
+    }
+    .article-content th {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <article>
+            <header class="mb-4">
+                <h1 class="display-5 fw-bold mb-3">{{ article.title }}</h1>
+                <div class="d-flex align-items-center text-muted">
+                    <span><i class="bi bi-calendar3 me-1"></i>{{ article.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    {% if article.updated_at != article.created_at %}
+                    <span class="ms-4"><i class="bi bi-pencil me-1"></i>更新于 {{ article.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    {% endif %}
+                    {% if current_user.is_authenticated %}
+                    <div class="ms-auto">
+                        <a href="{{ url_for('edit_article', article_id=article.id) }}" class="btn btn-outline-primary btn-sm me-2">
+                            <i class="bi bi-pencil me-1"></i>编辑
+                        </a>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="bi bi-trash me-1"></i>删除
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </header>
+
+            <hr class="my-4">
+
+            <div class="article-content mb-5">
+                {{ html_content }}
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>返回列表
+                </a>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('new_article') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>写新文章
+                </a>
+                {% endif %}
+            </div>
+        </article>
+    </div>
+</div>
+
+{% if current_user.is_authenticated %}
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">确认删除</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除文章「{{ article.title }}」吗？此操作不可撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <form action="{{ url_for('delete_article', article_id=article.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger">确认删除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/css.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/html.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('pre code').forEach(function(el) {
+            hljs.highlightElement(el);
+        });
+    });
+</script>
+{% endblock %}

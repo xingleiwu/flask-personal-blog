@@ -1,0 +1,60 @@
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+a {
+    transition: color 0.2s;
+}
+
+.btn {
+    transition: all 0.2s;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.page-link {
+    transition: all 0.2s;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.list-group-item {
+    transition: background-color 0.2s;
+}
+
+#content {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.modal-content {
+    border-radius: 0.5rem;
+}
+
+.alert {
+    border-radius: 0.5rem;
+}
